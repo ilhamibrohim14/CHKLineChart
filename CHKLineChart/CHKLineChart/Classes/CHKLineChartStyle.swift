@@ -38,7 +38,7 @@ open class CHKLineChartStyle {
     open var backgroundColor: UIColor = UIColor.white
     
     /// 显示边线上左下有
-    open var ch_borderWidth: (top: CGFloat, left: CGFloat, bottom: CGFloat, right: CGFloat) = (0.5, 0.5, 0.5, 0.5)
+    open var borderWidth: (top: CGFloat, left: CGFloat, bottom: CGFloat, right: CGFloat) = (0.5, 0.5, 0.5, 0.5)
     
     /**
      边距
@@ -141,10 +141,10 @@ public extension CHKLineChartStyle {
         let priceSection = CHSection()
         priceSection.backgroundColor = style.backgroundColor
         priceSection.titleShowOutSide = true
-        priceSection.valueType = .master
+        priceSection.valueType = .assistant
         priceSection.key = "master"
         priceSection.hidden = false
-        priceSection.ratios = 3
+        priceSection.ratios = 0
         priceSection.padding = UIEdgeInsets(top: 16, left: 0, bottom: 16, right: 0)
         
         /// 时分线

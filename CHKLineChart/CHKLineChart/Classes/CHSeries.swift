@@ -40,6 +40,7 @@ open class CHSeries: NSObject {
     open var title: String = ""
     open var chartModels = [CHChartModel]()          //每个系列包含多个点线模型
     open var hidden: Bool = false
+    open var isArea: Bool = false
     open var showTitle: Bool = true                                 //是否显示标题文本
     open var baseValueSticky = false                 //是否以固定基值显示最小或最大值，若超过范围
     open var symmetrical = false                     //是否以固定基值为中位数，对称显示最大最小值
@@ -65,10 +66,10 @@ extension CHSeries {
     ///   - section: 分区
     ///   - showGuide: 是否显示最大最小值
     /// - Returns: 线系列模型
-    public class func getTimelinePrice(color: UIColor, section: CHSection, showGuide: Bool = false, ultimateValueStyle: CHUltimateValueStyle = .none, lineWidth: CGFloat = 1) -> CHSeries {
+    public class func getTimelinePrice(color: UIColor, section: CHSection, showGuide: Bool = false, ultimateValueStyle: CHUltimateValueStyle = .none, lineWidth: CGFloat = 1,isArea: Bool = false) -> CHSeries {
         let series = CHSeries()
         series.key = CHSeriesKey.timeline
-        let timeline = CHChartModel.getLine(color, title: NSLocalizedString("Price", comment: ""), key: "\(CHSeriesKey.timeline)_\(CHSeriesKey.timeline)")
+        let timeline = CHChartModel.getLine(color, title: NSLocalizedString("Price", comment: ""), key: "\(CHSeriesKey.timeline)_\(CHSeriesKey.timeline)", isArea: isArea)
         timeline.section = section
         timeline.useTitleColor = false
         timeline.ultimateValueStyle = ultimateValueStyle
@@ -76,6 +77,7 @@ extension CHSeries {
         timeline.showMinVal = showGuide
         timeline.lineWidth = lineWidth
         series.chartModels = [timeline]
+      
         return series
     }
     
@@ -87,6 +89,7 @@ extension CHSeries {
                                      titleColor: UIColor,
                                      section: CHSection,
                                      showGuide: Bool = false,
+                                     lineWidth: CGFloat = 1,
                                      ultimateValueStyle: CHUltimateValueStyle = .none) -> CHSeries {
         let series = CHSeries()
         series.key = CHSeriesKey.candle
@@ -95,6 +98,7 @@ extension CHSeries {
         candle.useTitleColor = false
         candle.showMaxVal = showGuide
         candle.showMinVal = showGuide
+        candle.lineWidth = lineWidth
         candle.ultimateValueStyle = ultimateValueStyle
         series.chartModels = [candle]
         return series
@@ -105,11 +109,13 @@ extension CHSeries {
      */
     public class func getDefaultVolume(upStyle: (color: UIColor, isSolid: Bool),
                                        downStyle: (color: UIColor, isSolid: Bool),
+                                       lineWidth: CGFloat = 1,
                                        section: CHSection) -> CHSeries {
         let series = CHSeries()
         series.key = CHSeriesKey.volume
         let vol = CHChartModel.getVolume(upStyle: upStyle, downStyle: downStyle)
         vol.section = section
+        vol.lineWidth = lineWidth
         vol.useTitleColor = false
         series.chartModels = [vol]
         return series

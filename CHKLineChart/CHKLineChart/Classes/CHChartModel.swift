@@ -74,7 +74,7 @@ open class CHChartModel {
     open var useTitleColor = true
     open var key: String = ""                                     //key的名字
     open var ultimateValueStyle: CHUltimateValueStyle = .none       // 最大最小值显示样式
-    open var lineWidth: CGFloat = 0.6                                     //线段宽度
+    open var lineWidth: CGFloat = 1                                     //线段宽度
     open var plotPaddingExt: CGFloat =  0.165                     //点与点之间间断所占点宽的比例
     
     weak var section: CHSection!
@@ -214,6 +214,136 @@ open class CHLineModel: CHChartModel {
     
 }
 
+
+
+open class CHLineAreaModel: CHLineModel {
+   
+   
+   /**
+    画点线
+    
+    - parameter startIndex:     起始索引
+    - parameter endIndex:       结束索引
+    - parameter plotPaddingExt: 点与点之间间断所占点宽的比例
+    */
+   open override func drawSerie(_ startIndex: Int, endIndex: Int) -> CAShapeLayer {
+       
+       let serieLayer = CAShapeLayer()
+       
+       let modelLayer = CAShapeLayer()
+       modelLayer.strokeColor = self.upStyle.color.cgColor
+       modelLayer.fillColor = UIColor.clear.cgColor
+       modelLayer.lineWidth = self.lineWidth
+       modelLayer.lineCap = CAShapeLayerLineCap.round
+       modelLayer.lineJoin = CAShapeLayerLineJoin.round
+       
+       //每个点的间隔宽度
+       let plotWidth = (self.section.frame.size.width - self.section.padding.left - self.section.padding.right - 20) / CGFloat(endIndex - startIndex)
+       
+       //使用bezierPath画线段
+       let linePath = UIBezierPath()
+       
+       var maxValue: CGFloat = 0       //最大值的项
+       var maxPoint: CGPoint?          //最大值所在坐标
+       var minValue: CGFloat = CGFloat.greatestFiniteMagnitude       //最小值的项
+       var minPoint: CGPoint?          //最小值所在坐标
+     
+       var isStartDraw = false
+       
+       
+       var endX: CGFloat = 0
+       
+       //循环起始到终结
+       for i in stride(from: startIndex, to: endIndex, by: 1) {
+           
+           //开始的点
+           guard let value = self[i].value else {
+               continue //无法计算的值不绘画
+           }
+           
+           //开始X
+           let ix = self.section.frame.origin.x + self.section.padding.left + CGFloat(i - startIndex) * plotWidth
+           //结束X
+           //            let iNx = self.section.frame.origin.x + self.section.padding.left + CGFloat(i + 1 - startIndex) * plotWidth
+           
+           //把具体的数值转为坐标系的y值
+           let iys = self.section.getLocalY(value)
+           //            let iye = self.section.getLocalY(valueNext!)
+           let point = CGPoint(x: ix + plotWidth / 2, y: iys)
+           //第一个点移动路径起始
+           if !isStartDraw {
+               linePath.move(to: point)
+               isStartDraw = true
+               endX = point.x
+           } else {
+               linePath.addLine(to: point)
+               endX = ix + plotWidth
+           }
+           
+           //记录最大值信息
+           if value > maxValue {
+               maxValue = value
+               maxPoint = point
+           }
+           
+           //记录最小值信息
+           if value < minValue {
+               minValue = value
+               minPoint = point
+           }
+       }
+       
+     //  linePath.smoothedPath(withGranularity: 15)
+
+       modelLayer.path = linePath.cgPath
+       serieLayer.addSublayer(modelLayer)
+       
+       //【二】绘制填充区域
+       let fillLayer = CAShapeLayer()
+       linePath.addLine(to: CGPoint(x: endX, y: (minPoint?.y)!))
+       linePath.addLine(to: CGPoint(x: 0, y: (minPoint?.y)!))
+
+       fillLayer.path = linePath.cgPath
+       fillLayer.frame = CGRect(x:self.section.padding.left, y: 0, width:self.section.frame.width, height: self.section.frame.height + self.section.padding.top)
+       fillLayer.fillColor = UIColor.red.withAlphaComponent(0.3).cgColor
+       fillLayer.strokeColor = UIColor.clear.cgColor
+       fillLayer.lineCap = CAShapeLayerLineCap.round
+       fillLayer.lineJoin = CAShapeLayerLineJoin.round
+
+       //绘制渐变图层，然后使用填充区域的frame来截取
+       let fillGradientLayer = CAGradientLayer()
+       fillGradientLayer.frame = fillLayer.frame
+       fillGradientLayer.startPoint = CGPoint(x: 0, y: 0)
+       fillGradientLayer.endPoint = CGPoint(x: 1, y: 0)
+       fillGradientLayer.colors = [
+       
+        UIColor.ch_hex(0x169DD0).withAlphaComponent(1.0).cgColor,
+        UIColor.white.withAlphaComponent(1.0).cgColor
+       ]
+       fillGradientLayer.zPosition -= 1
+       fillGradientLayer.mask = fillLayer
+       serieLayer.addSublayer(fillGradientLayer)
+
+       //显示最大最小值
+       if self.showMaxVal && maxValue != 0 {
+           let highPrice = maxValue.ch_toString(maxF: section.decimal)
+           let maxLayer = self.drawGuideValue(value: highPrice, section: section, point: maxPoint!, trend: CHChartItemTrend.up)
+           
+           serieLayer.addSublayer(maxLayer)
+       }
+       
+       //显示最大最小值
+       if self.showMinVal && minValue != CGFloat.greatestFiniteMagnitude {
+           let lowPrice = minValue.ch_toString(maxF: section.decimal)
+           let minLayer = self.drawGuideValue(value: lowPrice, section: section, point: minPoint!, trend: CHChartItemTrend.down)
+           
+           serieLayer.addSublayer(minLayer)
+       }
+       return serieLayer
+   }
+   
+   
+}
 /**
  *  蜡烛样式模型
  */
@@ -669,7 +799,7 @@ public extension CHChartModel {
     /**
      绘画最大值
      */
-    func drawGuideValue(value: String, section: CHSection, point: CGPoint, trend: CHChartItemTrend) -> CAShapeLayer {
+    public func drawGuideValue(value: String, section: CHSection, point: CGPoint, trend: CHChartItemTrend) -> CAShapeLayer {
         
         let guideValueLayer = CAShapeLayer()
         
@@ -830,13 +960,24 @@ public extension CHChartModel {
 extension CHChartModel {
     
     //生成一个点线样式
-    public class func getLine(_ color: UIColor, title: String, key: String) -> CHLineModel {
-        let model = CHLineModel(upStyle: (color, true), downStyle: (color, true),
-                                titleColor: color)
-        model.title = title
-        model.key = key
-        return model
+    public class func getLine(_ color: UIColor, title: String, key: String, isArea: Bool = false) -> CHLineModel {
+        var data = CHLineModel()
+        if isArea {
+            let model = CHLineAreaModel(upStyle: (color, true), downStyle: (color, true),
+                                    titleColor: color)
+            model.title = title
+            model.key = key
+            data = model
+        } else {
+            let model = CHLineModel(upStyle: (color, true), downStyle: (color, true),
+                                    titleColor: color)
+            model.title = title
+            model.key = key
+            data =  model
+        }
+        return data
     }
+    
     
     //生成一个蜡烛样式
     public class func getCandle(upStyle: (color: UIColor, isSolid: Bool),

@@ -164,7 +164,7 @@ open class CHKLineChartView: UIView {
     /// MARK: - 成员变量
     @IBInspectable open var upColor: UIColor = UIColor.green     //升的颜色
     @IBInspectable open var downColor: UIColor = UIColor.red     //跌的颜色
-    @IBInspectable open var labelFont = UIFont.systemFont(ofSize: 10) 
+    @IBInspectable open var labelFont = UIFont.systemFont(ofSize: 10)
     @IBInspectable open var lineColor: UIColor = UIColor(white: 0.2, alpha: 1) //线条颜色
     @IBInspectable open var textColor: UIColor = UIColor(white: 0.8, alpha: 1) //文字颜色
     @IBInspectable open var xAxisPerInterval: Int = 4                        //x轴的间断个数
@@ -181,7 +181,7 @@ open class CHKLineChartView: UIView {
     open var sections = [CHSection]()
     open var selectedIndex: Int = -1                      //选择索引位
     open var scrollToPosition: CHChartViewScrollPosition = .none  //图表刷新后开始显示位置
-    var selectedPoint: CGPoint = CGPoint.zero
+    open var selectedPoint: CGPoint = CGPoint.zero
     
     //是否可缩放
     open var enablePinch: Bool = true
@@ -214,15 +214,15 @@ open class CHKLineChartView: UIView {
     /// 是否显示所有内容
     open var isShowAll: Bool = false
     
-    /// 显示边线上左下右
-    open var ch_borderWidth: (top: CGFloat, left: CGFloat, bottom: CGFloat, right: CGFloat) = (0.25, 0.25, 0.25, 0.25)
+    /// 显示边线上左下有
+    open var borderWidth: (top: CGFloat, left: CGFloat, bottom: CGFloat, right: CGFloat) = (0.25, 0.25, 0.25, 0.25)
     
     var lineWidth: CGFloat = 0.5
     var plotCount: Int = 0
     var rangeFrom: Int = 0                          //可见区域的开始索引位
     var rangeTo: Int = 0                            //可见区域的结束索引位
     open var range: Int = 77                             //显示在可见区域的个数
-    var ch_borderColor: UIColor = UIColor.gray
+    var borderColor: UIColor = UIColor.gray
     open var labelSize = CGSize(width: 40, height: 16)
     
     var datas: [CHChartItem] = [CHChartItem]()      //数据源
@@ -280,7 +280,7 @@ open class CHKLineChartView: UIView {
             self.showXAxisOnSection = self.style.showXAxisOnSection
             self.isShowAll = self.style.isShowAll
             self.showXAxisLabel = self.style.showXAxisLabel
-            self.ch_borderWidth = self.style.ch_borderWidth
+            self.borderWidth = self.style.borderWidth
         }
         
     }
@@ -1057,32 +1057,32 @@ extension CHKLineChartView {
         let borderPath = UIBezierPath()
         
         //画低部边线
-        if self.ch_borderWidth.bottom > 0 {
+        if self.borderWidth.bottom > 0 {
             
-            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.padding.left, y: section.frame.size.height + section.frame.origin.y, width: section.frame.size.width - section.padding.left, height: self.ch_borderWidth.bottom)))
+            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.padding.left, y: section.frame.size.height + section.frame.origin.y, width: section.frame.size.width - section.padding.left, height: self.borderWidth.bottom)))
         
         }
         
         //画顶部边线
-        if self.ch_borderWidth.top > 0 {
+        if self.borderWidth.top > 0 {
             
-            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.padding.left, y: section.frame.origin.y, width: section.frame.size.width - section.padding.left, height: self.ch_borderWidth.top)))
+            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.padding.left, y: section.frame.origin.y, width: section.frame.size.width - section.padding.left, height: self.borderWidth.top)))
             
         }
         
         
         //画左边线
-        if self.ch_borderWidth.left > 0 {
+        if self.borderWidth.left > 0 {
             
-            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.padding.left, y: section.frame.origin.y, width: self.ch_borderWidth.left, height: section.frame.size.height)))
+            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.padding.left, y: section.frame.origin.y, width: self.borderWidth.left, height: section.frame.size.height)))
         
         }
         
         
         //画右边线
-        if self.ch_borderWidth.right > 0 {
+        if self.borderWidth.right > 0 {
             
-            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.frame.size.width - section.padding.right, y: section.frame.origin.y, width: self.ch_borderWidth.left, height: section.frame.size.height)))
+            borderPath.append(UIBezierPath(rect: CGRect(x: section.frame.origin.x + section.frame.size.width - section.padding.right, y: section.frame.origin.y, width: self.borderWidth.left, height: section.frame.size.height)))
             
         }
         
@@ -1091,7 +1091,7 @@ extension CHKLineChartView {
         borderLayer.lineWidth = self.lineWidth
         borderLayer.path = borderPath.cgPath  // 从贝塞尔曲线获取到形状
         borderLayer.fillColor = self.lineColor.cgColor // 闭环填充的颜色
-        self.drawLayer.addSublayer(borderLayer)
+       // self.drawLayer.addSublayer(borderLayer)
         
     }
     
@@ -1636,12 +1636,12 @@ extension CHKLineChartView: UIGestureRecognizerDelegate {
         case .changed:
             
             //计算移动距离的绝对值，距离满足超过线条宽度就进行图表平移刷新
-            let distance = abs(translation.x)
+            let distance = fabs(translation.x)
 //            print("translation.x = \(translation.x)")
 //            print("distance = \(distance)")
             if distance > plotWidth {
                 let isRight = translation.x > 0 ? true : false
-                let interval = lroundf(abs(Float(distance / plotWidth)))
+                let interval = lroundf(fabs(Float(distance / plotWidth)))
                 self.moveChart(by: interval, direction: isRight)
                 //重新计算起始位
                 sender.setTranslation(CGPoint(x: 0, y: 0), in: self)
@@ -1668,11 +1668,11 @@ extension CHKLineChartView: UIGestureRecognizerDelegate {
                 let itemX = self?.dynamicItem.center.x ?? 0
                 let startX = self?.decelerationStartX ?? 0
                 //计算移动距离的绝对值，距离满足超过线条宽度就进行图表平移刷新
-                let distance = abs(itemX - startX)
+                let distance = fabs(itemX - startX)
                 //            print("distance = \(distance)")
                 if distance > plotWidth {
                     let isRight = itemX > 0 ? true : false
-                    let interval = lroundf(abs(Float(distance / plotWidth)))
+                    let interval = lroundf(fabs(Float(distance / plotWidth)))
                     self?.moveChart(by: interval, direction: isRight)
                     //重新计算起始位
                     self?.decelerationStartX = itemX
