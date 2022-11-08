@@ -691,8 +691,6 @@ extension CHKLineChartView {
                 
                 //获取各section的小数保留位数
                 let decimal = self.delegate?.kLineChart?(chart: self, decimalAt: index) ?? 2
-                section.decimal = decimal
-                
                 //初始Y轴的数据
                 self.initYAxis(section)
                 

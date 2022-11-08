@@ -29,6 +29,7 @@ public enum CHChartItemTrend {
 open class CHChartItem: NSObject {
     
     open var time: Int = 0
+    open var pair: String = ""
     open var openPrice: CGFloat = 0
     open var closePrice: CGFloat = 0
     open var lowPrice: CGFloat = 0
@@ -933,7 +934,7 @@ public extension CHChartModel {
             //画最大值数字
             let valueText = CHTextLayer()
             valueText.frame = CGRect(origin: point, size: textSize)
-            valueText.string = value
+            valueText.string = datas.first?.pair == "idr" ? idrFormat(value: value) : value
             valueText.fontSize = section.labelFont.pointSize
             valueText.foregroundColor =  guideValueTextColor.cgColor
             valueText.backgroundColor = UIColor.clear.cgColor
@@ -954,6 +955,21 @@ public extension CHChartModel {
         
     }
     
+    func idrFormat(value: String) -> String {
+       let currency = value.replacingOccurrences(of: ",", with: ".")
+       if !currency.isEmpty && currency.isNumber && currency.isNotInfinite {
+           let decimalValue = NSDecimalNumber(string: currency)
+           let numberFormatter = NumberFormatter()
+           numberFormatter.numberStyle = NumberFormatter.Style.decimal
+           numberFormatter.locale = Locale(identifier: "en_US")
+           numberFormatter.groupingSeparator = "."
+           numberFormatter.maximumFractionDigits = 0
+           return numberFormatter.string(from: decimalValue)!
+       } else {
+           return currency
+       }
+   }
+
 }
 
 // MARK: - 工厂方法
@@ -1035,6 +1051,22 @@ extension CHChartModel {
         value = item.extVal[self.key]
         item.value = value
         return item
+    }
+    
+}
+
+
+extension String {
+    public var isNumber: Bool {
+        return Double(self) != nil
+    }
+    
+    public var isNotInfinite: Bool {
+        if self.lowercased().contains("nan") || self.lowercased().contains("inf") {
+            return false
+        } else {
+            return true
+        }
     }
     
 }
