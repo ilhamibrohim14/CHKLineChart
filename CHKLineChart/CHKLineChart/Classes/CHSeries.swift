@@ -75,7 +75,7 @@ extension CHSeries {
                                        useTitleColor: Bool = false) -> CHSeries {
         let series = CHSeries()
         series.key = CHSeriesKey.timeline
-        let timeline = CHChartModel.getLine(color, title: NSLocalizedString("Price", comment: ""), key: "\(CHSeriesKey.timeline)_\(CHSeriesKey.timeline)", isArea: isArea)
+        let timeline = CHChartModel.getLine(color, title: "", key: "\(CHSeriesKey.timeline)_\(CHSeriesKey.timeline)", isArea: isArea)
         timeline.section = section
         timeline.section.pair = timeline.datas.first?.pair ?? "idr"
         timeline.useTitleColor = useTitleColor
