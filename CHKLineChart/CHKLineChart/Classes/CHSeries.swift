@@ -66,12 +66,18 @@ extension CHSeries {
     ///   - section: 分区
     ///   - showGuide: 是否显示最大最小值
     /// - Returns: 线系列模型
-    public class func getTimelinePrice(color: UIColor, section: CHSection, showGuide: Bool = false, ultimateValueStyle: CHUltimateValueStyle = .none, lineWidth: CGFloat = 1,isArea: Bool = false) -> CHSeries {
+    public class func getTimelinePrice(color: UIColor,
+                                       section: CHSection,
+                                       showGuide: Bool = false,
+                                       ultimateValueStyle: CHUltimateValueStyle = .none,
+                                       lineWidth: CGFloat = 1,
+                                       isArea: Bool = false,
+                                       useTitleColor: Bool = false) -> CHSeries {
         let series = CHSeries()
         series.key = CHSeriesKey.timeline
         let timeline = CHChartModel.getLine(color, title: NSLocalizedString("Price", comment: ""), key: "\(CHSeriesKey.timeline)_\(CHSeriesKey.timeline)", isArea: isArea)
         timeline.section = section
-        timeline.useTitleColor = false
+        timeline.useTitleColor = useTitleColor
         timeline.ultimateValueStyle = ultimateValueStyle
         timeline.showMaxVal = showGuide
         timeline.showMinVal = showGuide
@@ -90,12 +96,13 @@ extension CHSeries {
                                      section: CHSection,
                                      showGuide: Bool = false,
                                      lineWidth: CGFloat = 1,
-                                     ultimateValueStyle: CHUltimateValueStyle = .none) -> CHSeries {
+                                     ultimateValueStyle: CHUltimateValueStyle = .none,
+                                     useTitleColor: Bool = false) -> CHSeries {
         let series = CHSeries()
         series.key = CHSeriesKey.candle
         let candle = CHChartModel.getCandle(upStyle: upStyle, downStyle: downStyle, titleColor: titleColor)
         candle.section = section
-        candle.useTitleColor = false
+        candle.useTitleColor = useTitleColor
         candle.showMaxVal = showGuide
         candle.showMinVal = showGuide
         candle.lineWidth = lineWidth
@@ -110,13 +117,14 @@ extension CHSeries {
     public class func getDefaultVolume(upStyle: (color: UIColor, isSolid: Bool),
                                        downStyle: (color: UIColor, isSolid: Bool),
                                        lineWidth: CGFloat = 1,
-                                       section: CHSection) -> CHSeries {
+                                       section: CHSection,
+                                       useTitleColor: Bool = false) -> CHSeries {
         let series = CHSeries()
         series.key = CHSeriesKey.volume
         let vol = CHChartModel.getVolume(upStyle: upStyle, downStyle: downStyle)
         vol.section = section
         vol.lineWidth = lineWidth
-        vol.useTitleColor = false
+        vol.useTitleColor = useTitleColor
         series.chartModels = [vol]
         return series
     }

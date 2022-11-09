@@ -24,7 +24,7 @@ open class CHSection: NSObject {
     /// MARK: - 成员变量
     open var upColor: UIColor = UIColor.green     //升的颜色
     open var downColor: UIColor = UIColor.red     //跌的颜色
-    open var titleColor: UIColor = UIColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1) //文字颜色
+    open var titleColor: UIColor = UIColor.black //文字颜色
     open var labelFont = UIFont.systemFont(ofSize: 10)
     open var valueType: CHSectionValueType = CHSectionValueType.master
     open var key = ""
@@ -523,9 +523,9 @@ extension CHSection {
             } else {
                 switch item.trend {
                 case .up, .equal:
-                    textColor = model.upStyle.color
+                    textColor = model.titleColor
                 case .down:
-                    textColor = model.downStyle.color
+                    textColor = model.titleColor
                 }
             }
             
