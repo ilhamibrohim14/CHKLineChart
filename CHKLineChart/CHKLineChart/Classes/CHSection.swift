@@ -29,6 +29,7 @@ open class CHSection: NSObject {
     open var valueType: CHSectionValueType = CHSectionValueType.master
     open var key = ""
     open var pair = ""
+    open var titleLabel: Bool = false
     open var name: String = ""                              //区域的名称
     open var hidden: Bool = false
     open var paging: Bool = false
@@ -493,34 +494,37 @@ extension CHSection {
                     amplitude = (item.closePrice - item.openPrice) / item.openPrice * 100
                 }
                 
-                
-                let openPrice = pair == "idr" ? idrFormat(value: item.openPrice.ch_toString(maxF: self.decimal)) : item.openPrice.ch_toString(maxF: self.decimal)
-                let highPrice = pair == "idr" ? idrFormat(value: item.highPrice.ch_toString(maxF: self.decimal)) : item.highPrice.ch_toString(maxF: self.decimal)
-                let lowPrice = pair == "idr" ? idrFormat(value: item.lowPrice.ch_toString(maxF: self.decimal)) : item.lowPrice.ch_toString(maxF: self.decimal)
-                let closePrice = pair == "idr" ? idrFormat(value: item.closePrice.ch_toString(maxF: self.decimal)) : item.closePrice.ch_toString(maxF: self.decimal)
-                let amplitudeStr  = pair == "idr" ? idrFormat(value: amplitude.ch_toString(maxF: self.decimal)) : amplitude.ch_toString(maxF: self.decimal)
-                
-                title += NSLocalizedString("O", comment: "") + ": " +
-                    openPrice + "  "   //开始
-                title += NSLocalizedString("H", comment: "") + ": " +
-                   highPrice + "  "   //最高
-                title += NSLocalizedString("L", comment: "") + ": " +
-                   lowPrice + "  "    //最低
-                title += NSLocalizedString("C", comment: "") + ": " +
-                    closePrice + "  "  //收市
-                title += NSLocalizedString("R", comment: "") + ": " +
-                amplitudeStr  + "%   \n"        //振幅
+                if titleLabel {
+                    let openPrice = pair == "idr" ? idrFormat(value: item.openPrice.ch_toString(maxF: self.decimal)) : item.openPrice.ch_toString(maxF: self.decimal)
+                    let highPrice = pair == "idr" ? idrFormat(value: item.highPrice.ch_toString(maxF: self.decimal)) : item.highPrice.ch_toString(maxF: self.decimal)
+                    let lowPrice = pair == "idr" ? idrFormat(value: item.lowPrice.ch_toString(maxF: self.decimal)) : item.lowPrice.ch_toString(maxF: self.decimal)
+                    let closePrice = pair == "idr" ? idrFormat(value: item.closePrice.ch_toString(maxF: self.decimal)) : item.closePrice.ch_toString(maxF: self.decimal)
+                    let amplitudeStr = amplitude.ch_toString(maxF: self.decimal)
+                    
+                    title += NSLocalizedString("O", comment: "") + ": " +
+                        openPrice + "  "   //开始
+                    title += NSLocalizedString("H", comment: "") + ": " +
+                       highPrice + "  "   //最高
+                    title += NSLocalizedString("L", comment: "") + ": " +
+                       lowPrice + "  "    //最低
+                    title += NSLocalizedString("C", comment: "") + ": " +
+                        closePrice + "  "  //收市
+                    title += NSLocalizedString("R", comment: "") + ": " +
+                    amplitudeStr  + "%   \n"        //振幅
+                }
                 
             case is CHColumnModel:
-                
                 if model.key != CHSeriesKey.volume {
                     continue  //不是量线
                 }
                 
-                title += model.title + ": " + item.vol.ch_toString(maxF: self.decimal) + "  "
+                let vol = pair == "idr" ? idrFormat(value: item.vol.ch_toString(maxF: self.decimal)) : item.vol.ch_toString(maxF: self.decimal)
+                title += model.title + ": " + vol + "  "
             default:
                 if item.value != nil {
-                    title += model.title + ": " + item.value!.ch_toString(maxF: self.decimal) + "  "
+                    let castValue = item.value ?? 0
+                    let value = pair == "idr" ? idrFormat(value: castValue.ch_toString(maxF: self.decimal)) : castValue.ch_toString(maxF: self.decimal)
+                    title += model.title + ": " + value + "  "
                 }  else {
                     title += model.title + ": --  "
                 }
