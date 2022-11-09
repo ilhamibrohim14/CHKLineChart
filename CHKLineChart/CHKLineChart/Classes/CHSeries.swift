@@ -77,6 +77,7 @@ extension CHSeries {
         series.key = CHSeriesKey.timeline
         let timeline = CHChartModel.getLine(color, title: NSLocalizedString("Price", comment: ""), key: "\(CHSeriesKey.timeline)_\(CHSeriesKey.timeline)", isArea: isArea)
         timeline.section = section
+        timeline.section.pair = timeline.datas.first?.pair ?? "idr"
         timeline.useTitleColor = useTitleColor
         timeline.ultimateValueStyle = ultimateValueStyle
         timeline.showMaxVal = showGuide
@@ -102,6 +103,7 @@ extension CHSeries {
         series.key = CHSeriesKey.candle
         let candle = CHChartModel.getCandle(upStyle: upStyle, downStyle: downStyle, titleColor: titleColor)
         candle.section = section
+        candle.section.pair = candle.datas.first?.pair ?? "idr"
         candle.useTitleColor = useTitleColor
         candle.showMaxVal = showGuide
         candle.showMinVal = showGuide
@@ -123,6 +125,8 @@ extension CHSeries {
         series.key = CHSeriesKey.volume
         let vol = CHChartModel.getVolume(upStyle: upStyle, downStyle: downStyle)
         vol.section = section
+        vol.section.pair = vol.datas.first?.pair ?? "idr"
+
         vol.lineWidth = lineWidth
         vol.useTitleColor = useTitleColor
         series.chartModels = [vol]
@@ -207,6 +211,7 @@ extension CHSeries {
             
             let ma = CHChartModel.getLine(colors[i], title: "\(key)\(n)", key: "\(key)_\(n)_\(valueKey)")
             ma.section = section
+            ma.section.pair = ma.datas.first?.pair ?? "idr"
             series.chartModels.append(ma)
         }
         return series
@@ -235,10 +240,15 @@ extension CHSeries {
         series.key = CHSeriesKey.kdj
         let k = CHChartModel.getLine(kc, title: "K", key: "\(CHSeriesKey.kdj)_K")
         k.section = section
+        k.section.pair = k.datas.first?.pair ?? "idr"
         let d = CHChartModel.getLine(dc, title: "D", key: "\(CHSeriesKey.kdj)_D")
         d.section = section
+        d.section.pair = d.datas.first?.pair ?? "idr"
+
         let j = CHChartModel.getLine(jc, title: "J", key: "\(CHSeriesKey.kdj)_J")
         j.section = section
+        k.section.pair = j.datas.first?.pair ?? "idr"
+
         series.chartModels = [k, d, j]
         return series
     }
@@ -272,10 +282,13 @@ extension CHSeries {
         series.key = CHSeriesKey.boll
         let boll = CHChartModel.getLine(bollc, title: "BOLL", key: "\(CHSeriesKey.boll)_BOLL")
         boll.section = section
+        boll.section.pair = boll.datas.first?.pair ?? "idr"
         let ub = CHChartModel.getLine(ubc, title: "UB", key: "\(CHSeriesKey.boll)_UB")
         ub.section = section
+        ub.section.pair = boll.datas.first?.pair ?? "idr"
         let lb = CHChartModel.getLine(lbc, title: "LB", key: "\(CHSeriesKey.boll)_LB")
         lb.section = section
+        lb.section.pair = boll.datas.first?.pair ?? "idr"
         series.chartModels = [boll, ub, lb]
         return series
     }
@@ -295,6 +308,8 @@ extension CHSeries {
         series.key = CHSeriesKey.sar
         let sar = CHChartModel.getRound(upStyle: upStyle, downStyle: downStyle, titleColor: titleColor, title: "SAR", plotPaddingExt: plotPaddingExt, key: "\(CHSeriesKey.sar)")
         sar.section = section
+        sar.section.pair = sar.datas.first?.pair ?? "idr"
+
         sar.useTitleColor = true
         series.chartModels = [sar]
         return series

@@ -90,7 +90,7 @@ public extension CGFloat {
      
      - returns:
      */
-    func ch_toString(_ minF: Int = 2, maxF: Int = 6, minI: Int = 1) -> String {
+    func ch_toString(_ minF: Int = 0, maxF: Int = 6, minI: Int = 1) -> String {
         let valueDecimalNumber = NSDecimalNumber(value: Double(self) as Double)
         let twoDecimalPlacesFormatter = NumberFormatter()
         twoDecimalPlacesFormatter.maximumFractionDigits = maxF
