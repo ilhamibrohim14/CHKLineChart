@@ -28,6 +28,7 @@ open class CHSection: NSObject {
     open var labelFont = UIFont.systemFont(ofSize: 10)
     open var valueType: CHSectionValueType = CHSectionValueType.master
     open var key = ""
+    open var pair = ""
     open var name: String = ""                              //区域的名称
     open var hidden: Bool = false
     open var paging: Bool = false
@@ -423,7 +424,9 @@ extension CHSection {
         var start = 0
         let titleString = NSMutableAttributedString()
         for (title, color) in titles {
-            titleString.append(NSAttributedString(string: title))
+            let stringWithAttribute = NSAttributedString(string: title,
+                                                         attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 9.0)])
+            titleString.append(stringWithAttribute)
             let range = NSMakeRange(start, title.ch_length)
             //            NSLog("title = \(title)")
             //            NSLog("range = \(range)")
@@ -491,16 +494,22 @@ extension CHSection {
                 }
                 
                 
+                let openPrice = pair == "idr" ? idrFormat(value: item.openPrice.ch_toString(maxF: self.decimal)) : item.openPrice.ch_toString(maxF: self.decimal)
+                let highPrice = pair == "idr" ? idrFormat(value: item.highPrice.ch_toString(maxF: self.decimal)) : item.highPrice.ch_toString(maxF: self.decimal)
+                let lowPrice = pair == "idr" ? idrFormat(value: item.lowPrice.ch_toString(maxF: self.decimal)) : item.lowPrice.ch_toString(maxF: self.decimal)
+                let closePrice = pair == "idr" ? idrFormat(value: item.closePrice.ch_toString(maxF: self.decimal)) : item.closePrice.ch_toString(maxF: self.decimal)
+                let amplitudeStr  = pair == "idr" ? idrFormat(value: amplitude.ch_toString(maxF: self.decimal)) : amplitude.ch_toString(maxF: self.decimal)
+                
                 title += NSLocalizedString("O", comment: "") + ": " +
-                    item.openPrice.ch_toString(maxF: self.decimal) + "  "   //开始
+                    openPrice + "  "   //开始
                 title += NSLocalizedString("H", comment: "") + ": " +
-                    item.highPrice.ch_toString(maxF: self.decimal) + "  "   //最高
+                   highPrice + "  "   //最高
                 title += NSLocalizedString("L", comment: "") + ": " +
-                    item.lowPrice.ch_toString(maxF: self.decimal) + "  "    //最低
+                   lowPrice + "  "    //最低
                 title += NSLocalizedString("C", comment: "") + ": " +
-                    item.closePrice.ch_toString(maxF: self.decimal) + "  "  //收市
+                    closePrice + "  "  //收市
                 title += NSLocalizedString("R", comment: "") + ": " +
-                    amplitude.ch_toString(maxF: self.decimal) + "%   "        //振幅
+                amplitudeStr  + "%   \n"        //振幅
                 
             case is CHColumnModel:
                 
@@ -562,6 +571,21 @@ extension CHSection {
                 self.series.remove(at: index)
                 break
             }
+        }
+    }
+    
+    func idrFormat(value: String) -> String {
+        let currency = value.replacingOccurrences(of: ",", with: ".")
+        if !currency.isEmpty && currency.isNumber && currency.isNotInfinite {
+            let decimalValue = NSDecimalNumber(string: currency)
+            let numberFormatter = NumberFormatter()
+            numberFormatter.numberStyle = NumberFormatter.Style.decimal
+            numberFormatter.locale = Locale(identifier: "en_US")
+            numberFormatter.groupingSeparator = "."
+            numberFormatter.maximumFractionDigits = 0
+            return numberFormatter.string(from: decimalValue)!
+        } else {
+            return currency
         }
     }
 }
